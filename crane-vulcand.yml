@@ -1,0 +1,25 @@
+containers:
+  elasticsearch:
+    image: helder/elasticsearch:1.1.1
+    run:
+      detach: true
+      volume:
+        - /var/srv/elasticsearch:/data
+
+  kibana:
+    image: helder/kibana:3.1.2
+    run:
+      detach: true
+      publish:
+        - 80:80
+      link:
+        - elasticsearch:elasticsearch
+      volume:
+        - /var/srv/kibana/htpassd:/etc/nginx/.htpassd
+      env:
+        - DEFAULT_ROUTE=/dashboard/file/logstash.json
+
+groups:
+  default:
+    - elasticsearch
+    - kibana

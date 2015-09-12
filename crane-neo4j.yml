@@ -1,0 +1,31 @@
+containers:
+  hdfs:
+    image: sequenceiq/hadoop-docker
+    run:
+      cmd: /etc/bootstrap.sh -bash
+
+  mazerunner:
+    image: kbastani/neo4j-graph-analytics:1.1.0
+    run:
+      link:
+        - hdfs:hdfs
+      env:
+        - DEFAULT_ROUTE=/dashboard/file/logstash.json
+
+  graphdb:
+    image: kbastani/docker-neo4j:2.2.1
+    run:
+      detach: true
+      publish:
+        - 7474:7474
+      link:
+        - mazerunner:mazerunner
+        - hdfs:hdfs
+      volume:
+        - /opt/data/neo4j:/opt/data
+
+groups:
+  default:
+    - hdfs
+    - mazerunner
+    - graphdb
